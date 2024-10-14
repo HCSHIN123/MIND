@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4881f9a2c4d568047b316028d20a8dca, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  singleSceneMode: 0
+  dialogNoProbeVolumeInSetShown: 0
+  settings:
+    m_Version: 1
+    dilationSettings:
+      enableDilation: 1
+      dilationDistance: 1
+      dilationValidityThreshold: 0.25
+      dilationIterations: 1
+      squaredDistWeighting: 1
+    virtualOffsetSettings:
+      useVirtualOffset: 1
+      outOfGeoOffset: 0.01
+      searchMultiplier: 0.2
+      rayOriginBias: -0.001
+      collisionMask:
+        serializedVersion: 2
+        m_Bits: 4294967291
+  m_SceneGUIDs:
+  - 28dba51110394ce4a911468313bb026f
+  - 6f2fb5b95e4404c4489cadf4e8a079c1
+  - fd4b4253a3a40034cb965686d7d504c0
+  - 2b8109855c7f21e4793eebc47514c7c5
+  - c865a9f1859a4424e81472301df6addd
+  - eae3372f59f03b84d8fe3f85bca2faec
+  - fd03c69013ee6384f8b80913bb8e0b83
+  - 15bd1ec76bdc7174b9cc1b5d4492ed5b
+  - e94b019d308aa294ca96c4dcf8c2b2d8
+  - 61f1ef70099d9034881b5619b161a5c6
+  - b8fdd2d542ca24f4389b0f77fd612b60
+  - b19554f49217d8d4e88c534de1d04cf3
+  - 4688cb9a456204d83a81a47a2bd7b998
+  - 4864fc8d1aa9e4c38aeec60e365dff1d
+  - 3145765ad1e5c4d04bc6d3ab2dc66510
+  - 4665d3b54597c7747b7d9628cf59aeca
+  scenesToNotBake: []
+  m_LightingScenarios:
+  - Default
+  cellDescs:
+    m_Keys: 
+    m_Values: []
+  m_SerializedPerSceneCellList: []
+  cellSharedDataAsset:
+    m_AssetGUID: 
+    m_StreamableAssetPath: 
+    m_ElementSize: 0
+    m_StreamableCellDescs:
+      m_Keys: 
+      m_Values: []
+  scenarios:
+    m_Keys: []
+    m_Values: []
+  cellBricksDataAsset:
+    m_AssetGUID: 
+    m_StreamableAssetPath: 
+    m_ElementSize: 0
+    m_StreamableCellDescs:
+      m_Keys: 
+      m_Values: []
+  cellSupportDataAsset:
+    m_AssetGUID: 
+    m_StreamableAssetPath: 
+    m_ElementSize: 0
+    m_StreamableCellDescs:
+      m_Keys: 
+      m_Values: []
+  chunkSizeInBricks: 0
+  maxCellPosition: {x: 0, y: 0, z: 0}
+  minCellPosition: {x: 0, y: 0, z: 0}
+  globalBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  bakedSimplificationLevels: 3
+  bakedMinDistanceBetweenProbes: 1
+  maxSHChunkCount: -1
+  L0ChunkSize: 0
+  L1ChunkSize: 0
+  L2TextureChunkSize: 0
+  validityMaskChunkSize: 0
+  supportPositionChunkSize: 0
+  supportValidityChunkSize: 0
+  supportTouchupChunkSize: 0
+  supportOffsetsChunkSize: 0
+  supportDataChunkSize: 0
+  lightingScenario: Default
+  version: 0
+  freezePlacement: 0
+  simplificationLevels: 3
+  minDistanceBetweenProbes: 1
+  renderersLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  minRendererVolumeSize: 0.1
