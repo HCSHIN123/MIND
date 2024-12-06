@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class PolygonGenerator : MonoBehaviour
 {
     private Mesh mesh; // 다각형의 메쉬
-    private Vector3[] vertices; // 다각형의 정점들
+    //private List<Vector3> vertices = new(); // 다각형의 정점들
     private int[] indices; // 정점을 잇는 삼각형 정보
     private MeshCollider meshCollider; // 다각형의 충돌체
 
@@ -30,18 +30,18 @@ public class PolygonGenerator : MonoBehaviour
             Debug.Log("그림자에 진입");
     }
 
-    public void DrawPolygon(Vector3[] _vertices)
+    public void DrawPolygon(List<Vector3> _vertices)
     {
-        vertices = _vertices;
-        indices = DrawFilledIndices(vertices);  // 삼각형 인덱스배열 세팅
-        GeneratePolygon(vertices, indices);     // 모든 정보를 메쉬에 적용하여 폴리곤생성
+        
+        indices = DrawFilledIndices(_vertices.Count);  // 삼각형 인덱스배열 세팅
+        GeneratePolygon(_vertices.ToArray(), indices);     // 모든 정보를 메쉬에 적용하여 폴리곤생성
         meshCollider.sharedMesh = mesh;         // 메쉬를 콜라이더로 설정
     }
 
-    private int[] DrawFilledIndices(Vector3[] vertices)
+    private int[] DrawFilledIndices(int verticesCount)
     {
         // 정점을 잇는 삼각형을 생성하여 인덱스 배열 생성
-        int triangleCount = vertices.Length - 2;
+        int triangleCount = verticesCount - 2;
         List<int> indices = new List<int>();
         for (int i = 0; i < triangleCount; ++i)
         {

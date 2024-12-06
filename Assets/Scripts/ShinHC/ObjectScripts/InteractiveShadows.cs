@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public class InteractiveShadows : MonoBehaviour
 {
@@ -19,12 +20,14 @@ public class InteractiveShadows : MonoBehaviour
     private const float maxRayDistance = 100f; // 레이캐스트 최대 거리
     private const float defaultOffset = 0.01f; // 겹침 방지 오프셋
     private const float missedRayDistance = 50f; // 충돌 실패 시 확장 거리
+    List<Vector3> validPoints = new List<Vector3>(); // 유효한 정점을 저장할 리스트
     private void Awake()
     {
         // 오브젝트의 정점을 얻고 중복된 정점을 제거하여 배열로 저장
         objectVertices = transform.GetComponent<MeshFilter>().mesh.vertices.Distinct().ToArray();
         // 오브젝트의 정점만큼 배열할당
         points = new Vector3[objectVertices.Length];
+
     }
 
     private void FixedUpdate()
@@ -54,47 +57,61 @@ public class InteractiveShadows : MonoBehaviour
     private void UpdateShadowVertices()
     {
         Vector3 raycastDirection = lightHead.forward; // 기본 광원 방향 (Directional Light 사용 시)
+        validPoints.Clear();  // 리스트 초기화
 
         for (int i = 0; i < objectVertices.Length; i++)
         {
             // 오브젝트 정점을 월드 좌표로 변환
             Vector3 point = transform.TransformPoint(objectVertices[i]);
-            // 광원이 Directional이 아닌 경우 각 정점에서 광원을 향하는 벡터를 사용
+
+            // 광원이 Directional이 아닌 경우 각 광원에서 정점으로 향하는 벡터를 사용
             if (lightType != LightType.Directional)
             {
                 raycastDirection = point - lightHead.position;
+                raycastDirection.Normalize();
             }
 
-            // 레이캐스트로 그림자 정점을 계산하여 배열에 저장
-            points[i] = GetShadowVerticesPos(point, raycastDirection);
+            // 레이캐스트로 그림자 정점을 계산
+            if (GetShadowVerticesPos(point, raycastDirection, out Vector3 shadowVertex))
+            {
+                // 충돌한 정점만 저장
+                validPoints.Add(shadowVertex);
+            }
         }
 
-        // 정점을 정렬하고 폴리곤을 그림
-        polygonGenerator.DrawPolygon(SortVertices(points));
+        // 유효한 정점이 있을 경우에만 폴리곤을 그림
+        if (validPoints.Count > 0)
+        {
+            SortVertices(ref validPoints);
+            Debug.Log("VV : " + validPoints.Count);
+            polygonGenerator.DrawPolygon(validPoints);
+        }
     }
 
-    private Vector3[] SortVertices(Vector3[] _vertices)
+    private void SortVertices(ref List<Vector3> _vertices)
     {
-        // 정점의 중심을 계산하여 반시계 방향으로 정렬, Aggregate함수 : 모든 요소들을 결합해서 어떤 결과를 도출해내는 함수
-        Vector3 center = _vertices.Aggregate(Vector3.zero, (sum, v) => sum + v) / _vertices.Length;
+        // 정점의 중심을 계산
+        Vector3 center = _vertices.Aggregate(Vector3.zero, (sum, v) => sum + v) / _vertices.Count;
 
-        // center을 기준으로 반시계방향으로 정렬
-        // Atan은 한 점이 x축과 이루는 각도를 알 수 있기 때문에 기준으로 삼아 정렬
-        return _vertices.OrderBy(v => Mathf.Atan2(v.z - center.z, v.x - center.x)).ToArray();
+        // 중심을 기준으로 반시계방향으로 정렬
+        _vertices.Sort((a, b) => Mathf.Atan2(a.z - center.z, a.x - center.x).CompareTo(Mathf.Atan2(b.z - center.z, b.x - center.x)));
     }
 
-    private Vector3 GetShadowVerticesPos(Vector3 _fromPosition, Vector3 _direction)
+    private bool GetShadowVerticesPos(Vector3 _fromPosition, Vector3 _direction, out Vector3 shadowVertex)
     {
         RaycastHit hit;
 
-        // 레이캐스트로 정점의 위치를 얻어냄
+        // 레이캐스트 수행
         if (Physics.Raycast(_fromPosition, _direction, out hit, maxRayDistance, targetLayerMask))
         {
-            return hit.point - transform.position + new Vector3(defaultOffset, defaultOffset, defaultOffset);
+            // 충돌한 경우, 그림자 정점
+            shadowVertex = hit.point - transform.position + new Vector3(defaultOffset, defaultOffset, defaultOffset);
+            return true;
         }
 
-        // 충돌 실패시, 
-        return _fromPosition + missedRayDistance * _direction - transform.position;
+        // 충돌하지 않은 경우, 기본값
+        shadowVertex = Vector3.zero;
+        return false;
     }
 
     private bool TransformHasChanged()
