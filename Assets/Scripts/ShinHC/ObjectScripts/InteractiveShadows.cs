@@ -16,7 +16,9 @@ public class InteractiveShadows : MonoBehaviour
     private bool canUpdateCollider = true; // 콜라이더 업데이트 플래그
 
     [SerializeField][Range(0.02f, 1f)] private float shadowColliderUpdateTime = 0.08f; // 콜라이더 업데이트 주기
-
+    private const float maxRayDistance = 100f; // 레이캐스트 최대 거리
+    private const float defaultOffset = 0.01f; // 겹침 방지 오프셋
+    private const float missedRayDistance = 50f; // 충돌 실패 시 확장 거리
     private void Awake()
     {
         // 오브젝트의 정점을 얻고 중복된 정점을 제거하여 배열로 저장
@@ -84,12 +86,15 @@ public class InteractiveShadows : MonoBehaviour
     private Vector3 GetShadowVerticesPos(Vector3 _fromPosition, Vector3 _direction)
     {
         RaycastHit hit;
+
         // 레이캐스트로 정점의 위치를 얻어냄
-        if (Physics.Raycast(_fromPosition, _direction, out hit, 100f, targetLayerMask))
+        if (Physics.Raycast(_fromPosition, _direction, out hit, maxRayDistance, targetLayerMask))
         {
-            return hit.point - transform.position + new Vector3(0.01f, 0.01f, 0.01f); // 접촉지면과 겹침을 방지하기 위해 적절한 오프셋 추가
+            return hit.point - transform.position + new Vector3(defaultOffset, defaultOffset, defaultOffset);
         }
-        return _fromPosition + 50 * _direction - transform.position; // 충돌 실패시, 최대 거리 조정하여 과도한 연산 방지
+
+        // 충돌 실패시, 
+        return _fromPosition + missedRayDistance * _direction - transform.position;
     }
 
     private bool TransformHasChanged()
