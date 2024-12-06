@@ -10,14 +10,14 @@ public class InteractiveShadows : MonoBehaviour
     [SerializeField] private LayerMask targetLayerMask; // 그림자가 생성될 레이어 마스크
 
     private Vector3[] objectVertices; // 오브젝트의 정점 정보
-    private Vector3[] points;         // 그림자를 그릴때 사용될 정점을 담는 배열
+   
     private Vector3 previousPosition, previousLightPosition;
     private Quaternion previousRotation, previousLightRotation;
     private Vector3 previousScale, previousLightScale;
     private bool canUpdateCollider = true; // 콜라이더 업데이트 플래그
 
     [SerializeField][Range(0.02f, 1f)] private float shadowColliderUpdateTime = 0.08f; // 콜라이더 업데이트 주기
-    private const float maxRayDistance = 100f; // 레이캐스트 최대 거리
+    private const float validRayDistance = 100f; // 레이캐스트 최대 거리
     private const float defaultOffset = 0.01f; // 겹침 방지 오프셋
     private const float missedRayDistance = 50f; // 충돌 실패 시 확장 거리
     List<Vector3> validPoints = new List<Vector3>(); // 유효한 정점을 저장할 리스트
@@ -25,9 +25,6 @@ public class InteractiveShadows : MonoBehaviour
     {
         // 오브젝트의 정점을 얻고 중복된 정점을 제거하여 배열로 저장
         objectVertices = transform.GetComponent<MeshFilter>().mesh.vertices.Distinct().ToArray();
-        // 오브젝트의 정점만큼 배열할당
-        points = new Vector3[objectVertices.Length];
-
     }
 
     private void FixedUpdate()
@@ -57,7 +54,7 @@ public class InteractiveShadows : MonoBehaviour
     private void UpdateShadowVertices()
     {
         Vector3 raycastDirection = lightHead.forward; // 기본 광원 방향 (Directional Light 사용 시)
-        validPoints.Clear();  // 리스트 초기화
+        validPoints.Clear();  // 유효한 정점리스트 초기화
 
         for (int i = 0; i < objectVertices.Length; i++)
         {
@@ -71,10 +68,9 @@ public class InteractiveShadows : MonoBehaviour
                 raycastDirection.Normalize();
             }
 
-            // 레이캐스트로 그림자 정점을 계산
+            // 레이캐스트로 그림자 정점을 계산, 유효한 정점만 저장
             if (GetShadowVerticesPos(point, raycastDirection, out Vector3 shadowVertex))
             {
-                // 충돌한 정점만 저장
                 validPoints.Add(shadowVertex);
             }
         }
@@ -83,7 +79,6 @@ public class InteractiveShadows : MonoBehaviour
         if (validPoints.Count > 0)
         {
             SortVertices(ref validPoints);
-            Debug.Log("VV : " + validPoints.Count);
             polygonGenerator.DrawPolygon(validPoints);
         }
     }
@@ -93,23 +88,20 @@ public class InteractiveShadows : MonoBehaviour
         // 정점의 중심을 계산
         Vector3 center = _vertices.Aggregate(Vector3.zero, (sum, v) => sum + v) / _vertices.Count;
 
-        // 중심을 기준으로 반시계방향으로 정렬
+        // 각도를 기준으로 반시계방향으로 정렬 (중심에서 각 정점으로 향하는 각도를 사용)
         _vertices.Sort((a, b) => Mathf.Atan2(a.z - center.z, a.x - center.x).CompareTo(Mathf.Atan2(b.z - center.z, b.x - center.x)));
     }
 
     private bool GetShadowVerticesPos(Vector3 _fromPosition, Vector3 _direction, out Vector3 shadowVertex)
     {
-        RaycastHit hit;
-
         // 레이캐스트 수행
-        if (Physics.Raycast(_fromPosition, _direction, out hit, maxRayDistance, targetLayerMask))
+        if (Physics.Raycast(_fromPosition, _direction, out RaycastHit hit, validRayDistance, targetLayerMask))
         {
-            // 충돌한 경우, 그림자 정점
+            // 유효한 거리에 충돌한 경우, 정점 저장 후 true 반환
             shadowVertex = hit.point - transform.position + new Vector3(defaultOffset, defaultOffset, defaultOffset);
             return true;
         }
-
-        // 충돌하지 않은 경우, 기본값
+        // 유효한 거리에 충돌하지 않은 경우 false 반환
         shadowVertex = Vector3.zero;
         return false;
     }
